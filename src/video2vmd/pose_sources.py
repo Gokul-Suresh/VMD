@@ -50,6 +50,24 @@ class MediaPipePoseSource(PoseSource):
         28: "right_ankle",
     }
 
+    @staticmethod
+    def _landmark_to_vec3(landmark: object) -> Vec3:
+        """Convert MediaPipe normalized camera coordinates into retarget space.
+
+        MediaPipe landmarks are image-space:
+        - +x: right
+        - +y: down
+        - +z: farther away from camera (roughly)
+
+        Our retarget rest pose assumes +y is up, so we flip y here.
+        We also flip z so "forward" motion does not invert depth behavior.
+        """
+
+        x = float(getattr(landmark, "x"))
+        y = float(getattr(landmark, "y"))
+        z = float(getattr(landmark, "z"))
+        return Vec3(x, -y, -z)
+
     def frames(self, video_path: Path) -> Iterable[PoseFrame]:
         try:
             import cv2
@@ -78,8 +96,7 @@ class MediaPipePoseSource(PoseSource):
                 lmk = result.pose_landmarks.landmark
                 landmarks: Dict[str, Vec3] = {}
                 for idx, name in self.INDEX_TO_NAME.items():
-                    p = lmk[idx]
-                    landmarks[name] = Vec3(p.x, p.y, p.z)
+                    landmarks[name] = self._landmark_to_vec3(lmk[idx])
 
                 if "left_hip" in landmarks and "right_hip" in landmarks:
                     landmarks["hips_center"] = (
