@@ -1,0 +1,16 @@
+README.md
+pyproject.toml
+src/video2vmd/__init__.py
+src/video2vmd/cli.py
+src/video2vmd/models.py
+src/video2vmd/pipeline.py
+src/video2vmd/pose_sources.py
+src/video2vmd/rotation.py
+src/video2vmd/skeleton.py
+src/video2vmd/vmd_writer.py
+src/video2vmd.egg-info/PKG-INFO
+src/video2vmd.egg-info/SOURCES.txt
+src/video2vmd.egg-info/dependency_links.txt
+src/video2vmd.egg-info/top_level.txt
+tests/test_pipeline.py
+tests/test_rotation.py
