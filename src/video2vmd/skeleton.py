@@ -25,9 +25,11 @@ BONE_SPECS: List[Tuple[str, str, str, Vec3]] = [
 @dataclass
 class SkeletonRetargeter:
     rotation_smoothing: float = 0.4
+    center_scale: float = 15.0
 
     def __post_init__(self) -> None:
         self._last_rotation: Dict[str, Quat] = {}
+        self._center_origin: Vec3 | None = None
 
     def convert(self, pose_frame: PoseFrame) -> Iterable[BoneFrame]:
         out: List[BoneFrame] = []
@@ -45,11 +47,21 @@ class SkeletonRetargeter:
                 self.rotation_smoothing,
             )
             self._last_rotation[bone_name] = rotation
+            if bone_name == "センター":
+                if self._center_origin is None:
+                    self._center_origin = parent
+                position = (parent - self._center_origin) * self.center_scale
+            else:
+                # Bone keyframes should primarily carry rotation. Writing raw
+                # tracked positions for every bone distorts the rig because VMD
+                # positions are local offsets from model bind pose.
+                position = Vec3(0.0, 0.0, 0.0)
+
             out.append(
                 BoneFrame(
                     frame_index=pose_frame.frame_index,
                     bone_name=bone_name,
-                    position=parent,
+                    position=position,
                     rotation=rotation,
                 )
             )

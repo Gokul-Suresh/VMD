@@ -70,6 +70,13 @@ python -m video2vmd.cli input.mp4 output.vmd --pose-json sample_pose.json
 }
 ```
 
+
+## Troubleshooting
+
+- If your model starts upside-down or mirrored on frame 0, verify your input video is upright and from a single frontal camera.
+- MediaPipe landmarks are camera-space (`+y` downward), while MMD-style rigs usually expect `+y` upward. This project converts landmark axes before retargeting to reduce flipped first-frame poses.
+- The pipeline now prefers `pose_world_landmarks` when available for more stable hand/foot depth behavior and writes positional keyframes only for `センター` (root), while limb bones use rotation-only keys to avoid rig collapse from incorrect local translations.
+
 ## Why this is easy to debug
 
 - Swap media inference out for `JsonPoseSource`
